@@ -1,0 +1,5 @@
+Program to fetch build status (from github) and display it on stdout
+
+Usage: buildstatus <org> <branch1,branch2> <repo1,repo2>
+
+Example: buildstatus ACME main,next prj1,prj2

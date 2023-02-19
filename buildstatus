@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# Program to fetch build status (from github)
+# and display it on stdout
+
+#set -x
+set -e
+
+if test -z "${1}" -o -z "${2}" -o -z "${3}"
+then
+    printf "Usage: %s <org> <branch1,branch2> <repo1,repo2>\n" $(basename "${0}")
+    echo
+    printf "Example: %s ACME main,next prj1,prj2\n" $(basename "${0}")
+    exit 1
+fi
+
+ORG="${1}"
+BRANCHES="${2}"
+REPOS="${3}"
+
+IFS=","
+
+#echo "IFS=\"${IFS}\""
+for BRANCH in ${BRANCHES}
+do
+    #echo "BRANCH=\"${BRANCH}\""
+    for REPO in ${REPOS}
+    do
+	printf "% 10s - % 10s: " "${BRANCH}" "${REPO}"
+	# print the build status by parsing the SVG title
+	URL="https://github.com/${ORG}/${REPO}/actions/workflows/build.yml/badge.svg?branch=${BRANCH}"
+	#echo "${URL}"; continue
+	SVG=$(curl --silent "${URL}" 2>&1)
+	TITLE=$(echo "${SVG}" | grep title | sed -s 's@ *</*title> *@@g')
+	if test "${TITLE}"
+	then
+	    echo "${TITLE}"
+	else
+	    echo "${SVG}" | head
+	fi
+    done
+done
